@@ -36,24 +36,29 @@ fn scan_directory(path: &Path) {
         let file_contents: String = fs::read_to_string(path).unwrap();
         let package_json: Value = from_str(&file_contents).unwrap();
 
-        let mut dependencies_map: HashMap<String, Value> = package_json["dependencies"].as_object().unwrap()
-        .iter()
-        .map(|(k, v)| (k.clone(), v.clone()))
-        .collect();
+        if !package_json["dependencies"].is_null() {
+            let mut dependencies_map: HashMap<String, Value> = package_json["dependencies"].as_object().unwrap()
+            .iter()
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect();
 
-        let dev_dependencies_map: HashMap<String, Value> = package_json["devDependencies"].as_object().unwrap()
-        .iter()
-        .map(|(k, v)| (k.clone(), v.clone()))
-        .collect();
 
-        dependencies_map.extend(dev_dependencies_map);
+            if !package_json["devDependencies"].is_null() {
+                let dev_dependencies_map: HashMap<String, Value> = package_json["devDependencies"].as_object().unwrap()
+                .iter()
+                .map(|(k, v)| (k.clone(), v.clone()))
+                .collect();
 
-        for dependency in dependencies_map {
-            let dep: &str = dependency.0.as_str();
-            if !is_dependency_used(&dep, path) && 
-               !file_exists_in_node_modules_bin(&dep, path) {
-                // delete_dependency(path, dependency);
-                println!("{} | {}", path.display(), dep)
+                dependencies_map.extend(dev_dependencies_map);
+            }
+
+            for dependency in dependencies_map {
+                let dep: &str = dependency.0.as_str();
+                if !is_dependency_used(&dep, path) && 
+                !file_exists_in_node_modules_bin(&dep, path) {
+                    // delete_dependency(path, dependency);
+                    println!("{} | {}", path.display(), dep)
+                }
             }
         }
     }
@@ -78,7 +83,7 @@ fn scan_directory(path: &Path) {
 fn is_dependency_used(dependency: &str, path: &Path) -> bool {
     let mut is_used = false;
 
-    if path.is_dir() {
+    if path.is_dir() && !path.ends_with("node_modules") {
         for entry in fs::read_dir(path).unwrap() {
             let entry_path = entry.unwrap().path();
             if is_dependency_used(dependency, &entry_path) {
@@ -88,7 +93,11 @@ fn is_dependency_used(dependency: &str, path: &Path) -> bool {
         }
     } else if path.extension().unwrap() == "js" || path.extension().unwrap() == "ts" {
         let file_contents = fs::read_to_string(path).unwrap();
-        if file_contents.contains(&format!("use {}", dependency)) {
+        if file_contents.contains(&format!("import \"{}", dependency)) ||
+           file_contents.contains(&format!("import '{}", dependency)) ||
+           file_contents.contains(&format!("import {}", dependency)) ||
+           file_contents.contains(&format!("require(\"{}", dependency)) ||
+           file_contents.contains(&format!("require('{}", dependency)) {
             is_used = true;
         }
     }
