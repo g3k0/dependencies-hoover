@@ -56,7 +56,7 @@ fn scan_directory(path: &Path) {
                 if !is_dependency_used(&dep, &path.with_file_name("")) && 
                    !file_exists_in_node_modules_bin(&dep, &path) {
                     // delete_dependency(path, dependency);
-                    // println!("{} | {}", path.display(), dep)
+                    println!("{} | {}", path.display(), dep)
                 }
             }
         }
