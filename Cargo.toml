@@ -2,8 +2,15 @@
 name = "dependencies_hoover"
 version = "0.1.0"
 edition = "2021"
+authors = ["Christian Palazzo <christian.palazzo@vimn.com>"]
+description = "This application scans recursively node.js projects in order to find and delete unused dependencies declared in the package.json files"
+readme = "README.md"
+publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "helpers"
+path = "src/helpers.rs"
 
 [dependencies]
 serde = "1.0"
