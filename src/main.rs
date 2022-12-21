@@ -1,5 +1,5 @@
-use std::fs;
-use std::path::Path;
+use std::{fs};
+use std::path::{Path, PathBuf};
 use serde_json::{Value, from_str};
 use std::collections::HashMap;
 
@@ -12,7 +12,7 @@ fn main() {
 }
 
 fn scan_directory(path: &Path) {
-    if path.is_dir() {
+    if path.is_dir() && !path.ends_with("node_modules") {
 
         let Ok(_dir_entries): Result<fs::ReadDir, std::io::Error> = fs::read_dir(path) else { return };
 
@@ -42,7 +42,6 @@ fn scan_directory(path: &Path) {
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
 
-
             if !package_json["devDependencies"].is_null() {
                 let dev_dependencies_map: HashMap<String, Value> = package_json["devDependencies"].as_object().unwrap()
                 .iter()
@@ -52,12 +51,12 @@ fn scan_directory(path: &Path) {
                 dependencies_map.extend(dev_dependencies_map);
             }
 
-            for dependency in dependencies_map {
+            for dependency in &dependencies_map {
                 let dep: &str = dependency.0.as_str();
-                if !is_dependency_used(&dep, path) && 
-                !file_exists_in_node_modules_bin(&dep, path) {
+                if !is_dependency_used(&dep, &path.with_file_name("")) && 
+                   !file_exists_in_node_modules_bin(&dep, &path) {
                     // delete_dependency(path, dependency);
-                    println!("{} | {}", path.display(), dep)
+                    // println!("{} | {}", path.display(), dep)
                 }
             }
         }
@@ -81,31 +80,34 @@ fn scan_directory(path: &Path) {
 } */
 
 fn is_dependency_used(dependency: &str, path: &Path) -> bool {
-    let mut is_used = false;
-
-    if path.is_dir() && !path.ends_with("node_modules") {
-        for entry in fs::read_dir(path).unwrap() {
-            let entry_path = entry.unwrap().path();
-            if is_dependency_used(dependency, &entry_path) {
-                is_used = true;
-                break;
+    let mut usage = false;
+    if path.is_dir() {
+        let dir_name = path.file_name().unwrap().to_str().unwrap();
+        if dir_name != "node_modules" {
+            for entry in fs::read_dir(path).unwrap() {
+                let entry = entry.unwrap();
+                let entry_path = entry.path();
+                if is_dependency_used(dependency, &entry_path) {
+                    usage = true;
+                    break;
+                }
             }
         }
-    } else if path.extension().unwrap() == "js" || path.extension().unwrap() == "ts" {
+    } else if !path.extension().is_none() && (path.extension().unwrap() == "js" || path.extension().unwrap() == "ts") {
         let file_contents = fs::read_to_string(path).unwrap();
         if file_contents.contains(&format!("import \"{}", dependency)) ||
            file_contents.contains(&format!("import '{}", dependency)) ||
            file_contents.contains(&format!("import {}", dependency)) ||
            file_contents.contains(&format!("require(\"{}", dependency)) ||
            file_contents.contains(&format!("require('{}", dependency)) {
-            is_used = true;
+            usage = true
         }
     }
 
-    is_used
+    usage
 }
 
 fn file_exists_in_node_modules_bin(dependency: &str, path: &Path) -> bool {
-    let file_path = path.join("node_modules/.bin").join(dependency);
+    let file_path: PathBuf = path.with_file_name("node_modules/.bin").join(dependency);
     file_path.is_file()
 }
