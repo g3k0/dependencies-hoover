@@ -1,71 +1,62 @@
 use std::fs;
 use std::path::Path;
+use serde_json::{Value, from_str};
+use std::collections::HashMap;
 
 extern crate serde;
-#[macro_use]
 extern crate serde_derive;
 
 fn main() {
-    let root_path = Path::new("/Users/palazzoc0905/Studio/oao-webplex/");
+    let root_path: &Path = Path::new("/Users/palazzoc0905/Studio/oao-webplex/");
     scan_directory(&root_path);
 }
 
 fn scan_directory(path: &Path) {
     if path.is_dir() {
 
-        let _dir_entries = match fs::read_dir(path) {
-            Ok(entries) => entries,
-            Err(_) => return,
-        };
+        let Ok(_dir_entries): Result<fs::ReadDir, std::io::Error> = fs::read_dir(path) else { return };
 
         for entry in fs::read_dir(path).unwrap() {
 
-            let entry_path = if let Ok(ref entry) = entry {
+            let entry_path: std::path::PathBuf = if let Ok(ref entry) = entry {
                 entry.path()
             } else {
                 continue
             };
 
-            let file_name = entry_path.file_name().unwrap().to_str().unwrap();
+            let file_name: &str = entry_path.file_name().unwrap().to_str().unwrap();
             if file_name == "node_modules" {
                 continue;
             }
 
-            let entry_path = entry.unwrap().path();
+            let entry_path: std::path::PathBuf = entry.unwrap().path();
             scan_directory(&entry_path);
         }
     } else if path.file_name().unwrap() == "package.json" {
-        let file_contents = fs::read_to_string(path).unwrap();
-        let package_json: PackageJson = serde_json::from_str(&file_contents).unwrap();
-        let dependencies = package_json.dependencies.keys().collect::<Vec<_>>();
-        let dev_dependencies = package_json.devDependencies.keys().collect::<Vec<_>>();
-        let all_dependencies = [dependencies, dev_dependencies].concat();
-        for dependency in all_dependencies {
-            if !is_dependency_used(dependency, path) && !file_exists_in_node_modules_bin(dependency, path) {
+        let file_contents: String = fs::read_to_string(path).unwrap();
+        let package_json: Value = from_str(&file_contents).unwrap();
+
+        let mut dependencies_map: HashMap<String, Value> = package_json["dependencies"].as_object().unwrap()
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect();
+
+        let dev_dependencies_map: HashMap<String, Value> = package_json["devDependencies"].as_object().unwrap()
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect();
+
+        dependencies_map.extend(dev_dependencies_map);
+
+        for dependency in dependencies_map {
+            let dep: &str = dependency.0.as_str();
+            if !is_dependency_used(&dep, path) && 
+               !file_exists_in_node_modules_bin(&dep, path) {
                 // delete_dependency(path, dependency);
-                println!("{} | {}", path.display(), dependency)
+                println!("{} | {}", path.display(), dep)
             }
         }
     }
-}
-
-#[allow(non_snake_case)]
-#[derive(Deserialize, Serialize)]
-struct PackageJson {
-    private: bool,
-    name: String,
-    version: String,
-    description: String,
-    license: String,
-    author: String,
-    scripts: std::collections::HashMap<String, String>,
-    config: std::collections::HashMap<String, String>,
-    workspaces: std::collections::HashMap<String, String>,
-    resolutions: std::collections::HashMap<String, String>,
-    dependencies: std::collections::HashMap<String, String>,
-    optionalDependencies: std::collections::HashMap<String, String>,
-    devDependencies: std::collections::HashMap<String, String>,
-    engines: std::collections::HashMap<String, String>,
 }
 
 /* fn delete_dependency(package_json_path: &Path, dependency: &str) {
