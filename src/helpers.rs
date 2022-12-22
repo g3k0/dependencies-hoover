@@ -6,7 +6,10 @@ use std::collections::HashMap;
 extern crate serde;
 extern crate serde_derive;
 
-pub fn scan_directory(path: &Path) {
+pub fn scan_directory(path: &Path, ignore: &Vec<String>) {
+
+    // println!("{:?}", ignore); TO DO - insert a control that checks the directories to ignore
+
     if path.is_dir() && !path.ends_with("node_modules") {
 
         let Ok(_dir_entries): Result<fs::ReadDir, std::io::Error> = fs::read_dir(path) else { return };
@@ -25,7 +28,7 @@ pub fn scan_directory(path: &Path) {
             }
 
             let entry_path: std::path::PathBuf = entry.unwrap().path();
-            scan_directory(&entry_path);
+            scan_directory(&entry_path, ignore);
         }
     } else if path.file_name().unwrap() == "package.json" {
         let file_contents: String = fs::read_to_string(path).unwrap();

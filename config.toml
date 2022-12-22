@@ -1,1 +1,16 @@
-projectToScanPath = "/Users/palazzoc0905/Studio/oao-webplex/"
+project_to_scan_path = "/Users/palazzoc0905/Studio/oao-webplex/"
+ignore = [
+    ".githooks",
+    ".github",
+    ".storybook",
+    ".storybookWPX",
+    ".storyShots",
+    ".vscode",
+    "jenkins",
+    "scripts",
+    "tools",
+    "vars",
+    "coverage",
+    "node_modules",
+    "storybook-static",
+]
