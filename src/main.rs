@@ -20,5 +20,7 @@ fn main() {
     let project_path: &str = settings.get("projectToScanPath").unwrap();
 
     let root_path: &Path = Path::new(project_path);
+
+    // scan the project
     helpers::scan_directory(&root_path);
 }
