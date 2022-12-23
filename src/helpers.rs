@@ -1,7 +1,8 @@
 use std::path::{Path, PathBuf};
-use std::{fs};
+use std::{fs, io};
 use serde_json::{Value, from_str};
 use std::collections::HashMap;
+use std::io::prelude::*;
 
 extern crate serde;
 extern crate serde_derive;
@@ -42,7 +43,7 @@ pub fn scan_directory(path: &Path, ignore_dirs: &Vec<String>, dependencies_white
                 if  !file_exists_in_node_modules_bin(&dep, &path) &&
                     !is_dependency_in_whitelist(&dep, &dependencies_whitelist) {
                     if !is_dependency_used(&dep, &path.with_file_name(""), ignore_dirs) {
-                        // delete_dependency(path, dependency);
+                        delete_dependency(path, dep).unwrap();
                         println!("{} | {}", path.display(), dep)
                     }
                 }
@@ -108,18 +109,23 @@ fn is_dependency_in_whitelist(dependency: &str, whitelist: &Vec<String>) -> bool
     false
 }
 
-/* fn delete_dependency(package_json_path: &Path, dependency: &str) {
-    let file_contents = fs::read_to_string(package_json_path).unwrap();
-    let mut package_json: PackageJson = serde_json::from_str(&file_contents).unwrap();
+fn delete_dependency(package_json_path: &Path, dependency: &str) -> io::Result<()> {
+    let mut file = fs::File::open(package_json_path)?;
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)?;
+    let mut json: serde_json::Value = serde_json::from_str(&contents)?;
 
-    if package_json.dependencies.remove(dependency).is_some() {
-        println!("Dependency {} removed from dependencies.", dependency);
-    } else if package_json.devDependencies.remove(dependency).is_some() {
-        println!("Dependency {} removed from devDependencies.", dependency);
-    } else {
-        println!("Dependency {} not found in package.json.", dependency);
+    if let Some(deps) = json["dependencies"].as_object_mut() {
+        deps.remove(dependency);
     }
 
-    let updated_package_json = serde_json::to_string(&package_json).unwrap();
-    fs::write(package_json_path, updated_package_json).unwrap();
-} */
+    if let Some(deps) = json["devDependencies"].as_object_mut() {
+        deps.remove(dependency);
+    }
+
+    let new_contents = serde_json::to_string_pretty(&json)?;
+    let mut file = fs::File::create(package_json_path)?;
+    file.write_all(new_contents.as_bytes())?;
+
+    Ok(())
+}

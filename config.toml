@@ -27,5 +27,12 @@ dependencies_whitelist = [
     "typescript",
     "^@typescript/",
     "tslib",
-    "zim"
+    "zim",
+    "nx",
+    "^@nrwl/",
+    ".*babel.*",
+    "^@loadable/",
+    "^postcss",
+    ".*react.*",
+    "^eslint"
 ]
