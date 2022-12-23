@@ -1,5 +1,5 @@
 project_to_scan_path = "/Users/palazzoc0905/Studio/oao-webplex/"
-ignore = [
+ignore_dirs = [
     ".githooks",
     ".github",
     ".storybook",
@@ -13,4 +13,22 @@ ignore = [
     "coverage",
     "node_modules",
     "storybook-static",
+    "mock",
+    "mocks",
+    "dist"
+]
+ignore_files = [
+    "*.min.js"
+]
+dependencies_whitelist = [
+    "@viacom/*",
+    "@storybook/*",
+    "@testing-library/*",
+    "@types/*",
+    "@paramount/*",
+    "@data-model/*",
+    "typescript",
+    "@typescript/*",
+    "tslib",
+    "zim"
 ]

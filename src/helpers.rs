@@ -6,29 +6,14 @@ use std::collections::HashMap;
 extern crate serde;
 extern crate serde_derive;
 
-pub fn scan_directory(path: &Path, ignore: &Vec<String>) {
-
-    // println!("{:?}", ignore); TO DO - insert a control that checks the directories to ignore
-
-    if path.is_dir() && !path.ends_with("node_modules") {
+pub fn scan_directory(path: &Path, ignore_dirs: &Vec<String>) {
+    if path.is_dir() && !is_dir_in_ignore_list(&path, &ignore_dirs) {
 
         let Ok(_dir_entries): Result<fs::ReadDir, std::io::Error> = fs::read_dir(path) else { return };
 
         for entry in fs::read_dir(path).unwrap() {
-
-            let entry_path: std::path::PathBuf = if let Ok(ref entry) = entry {
-                entry.path()
-            } else {
-                continue
-            };
-
-            let file_name: &str = entry_path.file_name().unwrap().to_str().unwrap();
-            if file_name == "node_modules" {
-                continue;
-            }
-
             let entry_path: std::path::PathBuf = entry.unwrap().path();
-            scan_directory(&entry_path, ignore);
+            scan_directory(&entry_path, &ignore_dirs);
         }
     } else if path.file_name().unwrap() == "package.json" {
         let file_contents: String = fs::read_to_string(path).unwrap();
@@ -51,7 +36,7 @@ pub fn scan_directory(path: &Path, ignore: &Vec<String>) {
 
             for dependency in &dependencies_map {
                 let dep: &str = dependency.0.as_str();
-                if !is_dependency_used(&dep, &path.with_file_name("")) && 
+                if !is_dependency_used(&dep, &path.with_file_name(""), ignore_dirs) && 
                    !file_exists_in_node_modules_bin(&dep, &path) {
                     // delete_dependency(path, dependency);
                     println!("{} | {}", path.display(), dep)
@@ -62,18 +47,15 @@ pub fn scan_directory(path: &Path, ignore: &Vec<String>) {
 }
 
 
-fn is_dependency_used(dependency: &str, path: &Path) -> bool {
+fn is_dependency_used(dependency: &str, path: &Path, ignore_dirs: &Vec<String>) -> bool {
     let mut usage = false;
-    if path.is_dir() {
-        let dir_name = path.file_name().unwrap().to_str().unwrap();
-        if dir_name != "node_modules" {
-            for entry in fs::read_dir(path).unwrap() {
-                let entry = entry.unwrap();
-                let entry_path = entry.path();
-                if is_dependency_used(dependency, &entry_path) {
-                    usage = true;
-                    break;
-                }
+    if path.is_dir() && !is_dir_in_ignore_list(&path, &ignore_dirs) {
+        for entry in fs::read_dir(path).unwrap() {
+            let entry = entry.unwrap();
+            let entry_path = entry.path();
+            if is_dependency_used(dependency, &entry_path, ignore_dirs) {
+                usage = true;
+                break;
             }
         }
     } else if !path.extension().is_none() && (path.extension().unwrap() == "js" || path.extension().unwrap() == "ts") {
@@ -82,7 +64,9 @@ fn is_dependency_used(dependency: &str, path: &Path) -> bool {
             file_contents.contains(&format!("import '{}", dependency)) ||
             file_contents.contains(&format!("import {}", dependency)) ||
             file_contents.contains(&format!("require(\"{}", dependency)) ||
-            file_contents.contains(&format!("require('{}", dependency)) {
+            file_contents.contains(&format!("require('{}", dependency)) || 
+            file_contents.contains(&format!("from '{}", dependency)) ||  
+            file_contents.contains(&format!("from \"{}", dependency)) {
             usage = true
         }
     }
@@ -93,6 +77,19 @@ fn is_dependency_used(dependency: &str, path: &Path) -> bool {
 fn file_exists_in_node_modules_bin(dependency: &str, path: &Path) -> bool {
     let file_path: PathBuf = path.with_file_name("node_modules/.bin").join(dependency);
     file_path.is_file()
+}
+
+fn is_dir_in_ignore_list(path: &Path, ignore: &Vec<String>) -> bool {
+     if !path.is_dir() {
+        return false;
+    }
+    let path_str = path.to_str().unwrap();
+    for dir in ignore {
+        if path_str.contains(dir) {
+            return true;
+        }
+    }
+    false
 }
 
 /* fn delete_dependency(package_json_path: &Path, dependency: &str) {

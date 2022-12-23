@@ -10,7 +10,7 @@ extern crate serde_derive;
 #[derive(Deserialize)]
 struct Settings {
     project_to_scan_path: String,
-    ignore: Vec<String>,
+    ignore_dirs: Vec<String>,
 }
 
 fn main() {
@@ -24,8 +24,8 @@ fn main() {
     // get the config properties
     let project_path: &str = &settings.project_to_scan_path;
     let root_path: &Path = Path::new(project_path);
-    let ignore: Vec<String> = settings.ignore;
+    let ignore_dirs: Vec<String> = settings.ignore_dirs;
 
     // scan the project
-    helpers::scan_directory(&root_path, &ignore);
+    helpers::scan_directory(&root_path, &ignore_dirs);
 }
