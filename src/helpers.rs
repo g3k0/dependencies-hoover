@@ -5,15 +5,18 @@ use std::collections::HashMap;
 
 extern crate serde;
 extern crate serde_derive;
+extern crate regex;
 
-pub fn scan_directory(path: &Path, ignore_dirs: &Vec<String>) {
+use regex::Regex;
+
+pub fn scan_directory(path: &Path, ignore_dirs: &Vec<String>, dependencies_whitelist: &Vec<String>) {
     if path.is_dir() && !is_dir_in_ignore_list(&path, &ignore_dirs) {
 
         let Ok(_dir_entries): Result<fs::ReadDir, std::io::Error> = fs::read_dir(path) else { return };
 
         for entry in fs::read_dir(path).unwrap() {
             let entry_path: std::path::PathBuf = entry.unwrap().path();
-            scan_directory(&entry_path, &ignore_dirs);
+            scan_directory(&entry_path, &ignore_dirs, &dependencies_whitelist);
         }
     } else if path.file_name().unwrap() == "package.json" {
         let file_contents: String = fs::read_to_string(path).unwrap();
@@ -36,10 +39,12 @@ pub fn scan_directory(path: &Path, ignore_dirs: &Vec<String>) {
 
             for dependency in &dependencies_map {
                 let dep: &str = dependency.0.as_str();
-                if !is_dependency_used(&dep, &path.with_file_name(""), ignore_dirs) && 
-                   !file_exists_in_node_modules_bin(&dep, &path) {
-                    // delete_dependency(path, dependency);
-                    println!("{} | {}", path.display(), dep)
+                if  !file_exists_in_node_modules_bin(&dep, &path) &&
+                    !is_dependency_in_whitelist(&dep, &dependencies_whitelist) {
+                    if !is_dependency_used(&dep, &path.with_file_name(""), ignore_dirs) {
+                        // delete_dependency(path, dependency);
+                        println!("{} | {}", path.display(), dep)
+                    }
                 }
             }
         }
@@ -58,7 +63,8 @@ fn is_dependency_used(dependency: &str, path: &Path, ignore_dirs: &Vec<String>) 
                 break;
             }
         }
-    } else if !path.extension().is_none() && (path.extension().unwrap() == "js" || path.extension().unwrap() == "ts") {
+    } else if !path.extension().is_none() && 
+              (path.extension().unwrap() == "js" || path.extension().unwrap() == "ts") {
         let file_contents = fs::read_to_string(path).unwrap();
         if file_contents.contains(&format!("import \"{}", dependency)) ||
             file_contents.contains(&format!("import '{}", dependency)) ||
@@ -86,6 +92,16 @@ fn is_dir_in_ignore_list(path: &Path, ignore: &Vec<String>) -> bool {
     let path_str = path.to_str().unwrap();
     for dir in ignore {
         if path_str.contains(dir) {
+            return true;
+        }
+    }
+    false
+}
+
+fn is_dependency_in_whitelist(dependency: &str, whitelist: &Vec<String>) -> bool {
+    for pattern in whitelist {
+        let regex = Regex::new(&pattern).unwrap();
+        if regex.is_match(dependency) {
             return true;
         }
     }

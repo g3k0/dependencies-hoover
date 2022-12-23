@@ -21,14 +21,14 @@ ignore_files = [
     "*.min.js"
 ]
 dependencies_whitelist = [
-    "@viacom/*",
-    "@storybook/*",
-    "@testing-library/*",
-    "@types/*",
-    "@paramount/*",
-    "@data-model/*",
+    "^@viacom/",
+    "^@storybook/",
+    "^@testing-library/",
+    "^@types/",
+    "^@paramount/",
+    "^@data-model/",
     "typescript",
-    "@typescript/*",
+    "^@typescript/",
     "tslib",
     "zim"
 ]
