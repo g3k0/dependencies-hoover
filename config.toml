@@ -24,8 +24,7 @@ dependencies_whitelist = [
     "^@types/",
     "^@paramount/",
     "^@data-model/",
-    "typescript",
-    "^@typescript/",
+    ".*typescript.*",
     "tslib",
     "zim",
     "nx",
@@ -34,5 +33,5 @@ dependencies_whitelist = [
     "^@loadable/",
     "^postcss",
     ".*react.*",
-    "^eslint"
+    "^eslint",
 ]

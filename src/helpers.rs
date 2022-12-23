@@ -67,13 +67,13 @@ fn is_dependency_used(dependency: &str, path: &Path, ignore_dirs: &Vec<String>) 
     } else if !path.extension().is_none() && 
               (path.extension().unwrap() == "js" || path.extension().unwrap() == "ts") {
         let file_contents = fs::read_to_string(path).unwrap();
-        if file_contents.contains(&format!("import \"{}", dependency)) ||
-            file_contents.contains(&format!("import '{}", dependency)) ||
+        if file_contents.contains(&format!("import \"{}\"", dependency)) ||
+            file_contents.contains(&format!("import '{}'", dependency)) ||
             file_contents.contains(&format!("import {}", dependency)) ||
-            file_contents.contains(&format!("require(\"{}", dependency)) ||
-            file_contents.contains(&format!("require('{}", dependency)) || 
-            file_contents.contains(&format!("from '{}", dependency)) ||  
-            file_contents.contains(&format!("from \"{}", dependency)) {
+            file_contents.contains(&format!("(\"{}\")", dependency)) ||
+            file_contents.contains(&format!("('{}')", dependency)) || 
+            file_contents.contains(&format!("from '{}'", dependency)) ||  
+            file_contents.contains(&format!("from \"{}\"", dependency)) {
             usage = true
         }
     }
