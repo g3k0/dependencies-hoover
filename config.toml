@@ -17,9 +17,6 @@ ignore_dirs = [
     "mocks",
     "dist"
 ]
-ignore_files = [
-    "*.min.js"
-]
 dependencies_whitelist = [
     "^@viacom/",
     "^@storybook/",
