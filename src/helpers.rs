@@ -51,7 +51,7 @@ pub fn scan_directory(path: &Path, ignore_dirs: &Vec<String>, dependencies_white
                         delete_dependency(path, dep).unwrap();
                         match write_report(path, dep) {
                             Ok(()) => (),
-                            Err(e) => println!("Error: {}", e),
+                            Err(e) => panic!("Error: {}", e),
                         }
 
                     }
