@@ -34,5 +34,6 @@ dependencies_whitelist = [
     "^postcss",
     ".*react.*",
     "^eslint",
-    ".*jest.*"
+    ".*jest.*",
+    ".*enzyme-to-json.*"
 ]
