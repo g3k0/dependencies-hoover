@@ -115,13 +115,17 @@ fn delete_dependency(package_json_path: &Path, dependency: &str) -> io::Result<(
     file.read_to_string(&mut contents)?;
     let mut json: serde_json::Value = serde_json::from_str(&contents)?;
 
-    if let Some(deps) = json["dependencies"].as_object_mut() {
-        deps.remove(dependency);
+    if let Some(_deps) = json.get("dependencies") {
+        if let Some(deps) = json["dependencies"].as_object_mut() {
+            deps.remove(dependency);
+        }
     }
 
-    if let Some(deps) = json["devDependencies"].as_object_mut() {
-        deps.remove(dependency);
-    }
+    if let Some(_deps) = json.get("devDependencies") {
+        if let Some(deps) = json["devDependencies"].as_object_mut() {
+            deps.remove(dependency);
+        }
+    }   
 
     let new_contents = serde_json::to_string_pretty(&json)?;
     let mut file = fs::File::create(package_json_path)?;
