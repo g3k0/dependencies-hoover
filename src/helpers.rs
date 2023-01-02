@@ -1,5 +1,7 @@
+use std::fs::OpenOptions;
 use std::path::{Path, PathBuf};
 use std::{fs, io};
+use chrono::{DateTime, Local};
 use serde_json::{Value, from_str};
 use std::collections::HashMap;
 use std::io::prelude::*;
@@ -45,8 +47,13 @@ pub fn scan_directory(path: &Path, ignore_dirs: &Vec<String>, dependencies_white
                 if  !file_exists_in_node_modules_bin(&dep, &path) &&
                     !is_dependency_in_whitelist(&dep, &dependencies_whitelist) {
                     if !is_dependency_used(&dep, &path.with_file_name(""), ignore_dirs) {
+
                         delete_dependency(path, dep).unwrap();
-                        write_report(path, dep);
+                        match write_report(path, dep) {
+                            Ok(()) => (),
+                            Err(e) => println!("Error: {}", e),
+                        }
+
                     }
                 }
             }
@@ -136,8 +143,19 @@ fn delete_dependency(package_json_path: &Path, dependency: &str) -> io::Result<(
     Ok(())
 }
 
-fn write_report(path: &Path, dependency: &str) {
-    //let today:DateTime<Local> = Local::now();
-    //let filename = "output_".to_owned() + &today.format("%Y-%m-%d").to_string();
-    println!("{} | {}", path.display(), dependency);
+fn write_report(path: &Path, dependency: &str) -> std::io::Result<()> {
+    let today:DateTime<Local> = Local::now();
+    let filename = "./reports/dependencies_cleaning_report_".to_owned() + &today.format("%Y-%m-%d").to_string();
+    let report_path: &Path = Path::new(&filename);
+    let line: String = path.display().to_string() + " | " + dependency;
+
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(report_path)?;
+
+    file.write_all(line.as_bytes())?;
+    file.write_all(b"\n")?;
+
+    Ok(())
 }
