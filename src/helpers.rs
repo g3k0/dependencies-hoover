@@ -72,8 +72,8 @@ fn is_dependency_used(dependency: &str, path: &Path, ignore_dirs: &Vec<String>) 
             file_contents.contains(&format!("import {}", dependency)) ||
             file_contents.contains(&format!("(\"{}\")", dependency)) ||
             file_contents.contains(&format!("('{}')", dependency)) || 
-            file_contents.contains(&format!("from '{}'", dependency)) ||  
-            file_contents.contains(&format!("from \"{}\"", dependency)) {
+            file_contents.contains(&format!("from '{}", dependency)) ||  
+            file_contents.contains(&format!("from \"{}", dependency)) {
             usage = true
         }
     }
