@@ -7,8 +7,10 @@ use std::io::prelude::*;
 extern crate serde;
 extern crate serde_derive;
 extern crate regex;
+extern crate chrono;
 
 use regex::Regex;
+// use chrono::prelude::*;
 
 pub fn scan_directory(path: &Path, ignore_dirs: &Vec<String>, dependencies_whitelist: &Vec<String>) {
     if path.is_dir() && !is_dir_in_ignore_list(&path, &ignore_dirs) {
@@ -44,7 +46,7 @@ pub fn scan_directory(path: &Path, ignore_dirs: &Vec<String>, dependencies_white
                     !is_dependency_in_whitelist(&dep, &dependencies_whitelist) {
                     if !is_dependency_used(&dep, &path.with_file_name(""), ignore_dirs) {
                         delete_dependency(path, dep).unwrap();
-                        println!("{} | {}", path.display(), dep)
+                        write_report(path, dep);
                     }
                 }
             }
@@ -132,4 +134,10 @@ fn delete_dependency(package_json_path: &Path, dependency: &str) -> io::Result<(
     file.write_all(new_contents.as_bytes())?;
 
     Ok(())
+}
+
+fn write_report(path: &Path, dependency: &str) {
+    //let today:DateTime<Local> = Local::now();
+    //let filename = "output_".to_owned() + &today.format("%Y-%m-%d").to_string();
+    println!("{} | {}", path.display(), dependency);
 }

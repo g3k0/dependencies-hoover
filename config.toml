@@ -13,8 +13,6 @@ ignore_dirs = [
     "coverage",
     "node_modules",
     "storybook-static",
-    "mock",
-    "mocks",
     "dist"
 ]
 dependencies_whitelist = [
