@@ -7,7 +7,7 @@ A superfast Node.js projects dependencies cleaner.
 Dependencies Hoover scans a Node.js project (both js and ts), searches recursively for package.json files and  if a dependency (included devDependencies) is not imported in a source file or is not present inside the node_modules/.bin folder, removes the dependency from the
 package.json.<br/> 
 A final report file is produced after the scan.<br/>
-The application can run in cleaning mode or analysis only mode, in this case only the report is produced and the dependencies are not removed.
+The application can run in **cleaning mode** or **analysis_only mode**, in this case only the report is produced and the dependencies are not removed.
 
 Dependencies Hoover is entirely written in [Rust](https://www.rust-lang.org/) and it doesn't have external dependencies, it means that the executable file builded on a local machine runs independently of the operating system.<br />
 The executable reads at runtime from a configuration file, so it is possible to change the configuration with no need to compile the source code again.
@@ -49,7 +49,7 @@ If you want to run the application in development mode, it is possible to instal
 cargo run
 ```
 
-If you want to run the executable, be sure that the config.toml file is present and the executable has the needed rights (read ,write and execution), then just run from a shell:
+If you want to run the executable, be sure that the config.toml file is present and the executable has the needed rights (read, write and execution), then just run from a shell:
 
 ```bash
 ./dependencies_hoover
@@ -88,7 +88,7 @@ The HTML report is generated under the following path:
 target/debug/coverage
 ```
 
-At the time of writing, the application has about the 75% of code coverage.
+At the time of writing, the application has about the **75% of code coverage**.
 
 ## Notes
 
