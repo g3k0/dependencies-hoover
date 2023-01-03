@@ -232,3 +232,23 @@ fn test_is_dependency_in_whitelist() {
     let dependency = "lodash";
     assert_eq!(is_dependency_in_whitelist(dependency, &whitelist), false);
 }
+
+#[test]
+fn test_write_report() {
+    let path = Path::new("/app/src/main.js");
+    let dependency = "lodash";
+
+    // Write report
+    write_report(path, dependency).expect("Failed to write report");
+
+    // Check if report was written correctly
+    let today:DateTime<Local> = Local::now();
+    let filename = "./reports/dependencies_cleaning_report_".to_owned() + &today.format("%Y-%m-%d").to_string();
+    let report_path = Path::new(&filename);
+    let report_contents = fs::read_to_string(report_path).expect("Failed to read report");
+    assert!(report_contents.contains(&path.display().to_string()));
+    assert!(report_contents.contains(dependency));
+
+    // Delete report
+    fs::remove_file(report_path).expect("Failed to delete report");
+}
