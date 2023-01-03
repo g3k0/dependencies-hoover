@@ -183,3 +183,16 @@ fn test_is_dependency_used() {
     let path = Path::new("./mock/lib/utils.js");
     assert_eq!(is_dependency_used(dependency, &path, &ignore_dirs), false);
 }
+
+#[test]
+fn test_file_exists_in_node_modules_bin() {
+    let dependency_1: &str = "nx";
+    let dependency_2: &str = "express";
+    let path: &Path = Path::new("./mock/app/package.json");
+
+    // Test dependency with no bin
+    assert_eq!(file_exists_in_node_modules_bin(dependency_2, &path), false);
+
+    // Test dependency with bin
+    assert_eq!(file_exists_in_node_modules_bin(dependency_1, &path), true);
+}
