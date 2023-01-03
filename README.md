@@ -4,16 +4,17 @@ A superfast Node.js projects dependencies cleaner.
 
 ## Overview
 
-Dependencies Hoover scans a Node.js project (both js and ts), searches recursively for package.json files and  if a dependency (included devDependencies) is not imported in a source file or is not present inside the node_modules/.bin folder, is deleted from the
-package.json.<br/>
-A final report file is produced after the scan.
+Dependencies Hoover scans a Node.js project (both js and ts), searches recursively for package.json files and  if a dependency (included devDependencies) is not imported in a source file or is not present inside the node_modules/.bin folder, removes the dependency from the
+package.json.<br/> 
+A final report file is produced after the scan.<br/>
+The application can run in cleaning mode or analysis only mode, in this case only the report is produced and the dependencies are not removed.
 
 Dependencies Hoover is entirely written in [Rust](https://www.rust-lang.org/) and it doesn't have external dependencies, it means that the executable file builded on a local machine runs independently of the operating system.<br />
 The executable reads at runtime from a configuration file, so it is possible to change the configuration with no need to compile the source code again.
 
 ## Configuration
 
-The configuration is contained in the **config.toml** file, it has 3 parameters:
+The configuration is contained in the **config.toml** file, it has 4 parameters:
 
 * project_to_scan_path: is the path (full of relative) of the Node.js project to scan;
 * analysis_only: is a boolean flag that permits to perform only the code analysis without the dependencies being removed;
@@ -40,7 +41,7 @@ The executable will be produced under the **target** folder.
 
 ## How to run
 
-Before to run the application be sure that a **reports** folder is present in the root directory of the project, then edit the **config.toml** file according to your needs.<br />
+Before to run the application be sure that a **reports** folder is present in the root directory of the project, then edit the **config.toml** file depending on your needs.<br />
 
 If you want to run the application in development mode, it is possible to install the dependencies, build and run the application at the same time with the following command:
 
@@ -48,7 +49,7 @@ If you want to run the application in development mode, it is possible to instal
 cargo run
 ```
 
-If you want to run the compiled file, put the executable, the config files and the reports folder at the same level, then just run from a shell:
+If you want to run the executable, be sure that the reports folder and the config.toml file are present, then just run from a shell:
 
 ```bash
 ./dependencies_hoover
