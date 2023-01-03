@@ -157,3 +157,29 @@ fn write_report(path: &Path, dependency: &str) -> std::io::Result<()> {
 
     Ok(())
 }
+
+// ----------------------------------------------------------------------------------------------------------------- //
+
+#[cfg(test)]
+
+#[test]
+fn test_is_dependency_used() {
+    let dependency = "lodash";
+    let ignore_dirs = vec!["node_modules".to_string()];
+
+    // Test directory with no usage
+    let path = Path::new("./mock/lib");
+    assert_eq!(is_dependency_used(dependency, &path, &ignore_dirs), false);
+
+    // Test directory with usage in a file
+    let path = Path::new("./mock/app");
+    assert_eq!(is_dependency_used(dependency, &path, &ignore_dirs), true);
+
+    // Test file with usage
+    let path = Path::new("./mock/app/index.js");
+    assert_eq!(is_dependency_used(dependency, &path, &ignore_dirs), true);
+
+    // Test file without usage
+    let path = Path::new("./mock/lib/utils.js");
+    assert_eq!(is_dependency_used(dependency, &path, &ignore_dirs), false);
+}
