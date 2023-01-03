@@ -216,3 +216,19 @@ fn test_is_dir_in_ignore_list() {
     let path = Path::new("./mock/app/src/main.js");
     assert_eq!(is_dir_in_ignore_list(&path, &ignore_dirs), false);
 }
+
+#[test]
+fn test_is_dependency_in_whitelist() {
+    let whitelist = vec![
+        "^@types/.*$".to_string(),
+        "^react-router-dom$".to_string(),
+    ];
+
+    // Test dependency in whitelist
+    let dependency = "@types/react-router-dom";
+    assert_eq!(is_dependency_in_whitelist(dependency, &whitelist), true);
+
+    // Test dependency not in whitelist
+    let dependency = "lodash";
+    assert_eq!(is_dependency_in_whitelist(dependency, &whitelist), false);
+}
