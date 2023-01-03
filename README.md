@@ -41,7 +41,7 @@ The executable will be produced under the **target** folder.
 
 ## How to run
 
-Before to run the application be sure that a **reports** folder is present in the root directory of the project, then edit the **config.toml** file depending on your needs.<br />
+Before to run the application edit the **config.toml** file depending on your needs.<br />
 
 If you want to run the application in development mode, it is possible to install the dependencies, build and run the application at the same time with the following command:
 
@@ -49,11 +49,13 @@ If you want to run the application in development mode, it is possible to instal
 cargo run
 ```
 
-If you want to run the executable, be sure that the reports folder and the config.toml file are present, then just run from a shell:
+If you want to run the executable, be sure that the config.toml file is present and the executable has the needed rights (read ,write and execution), then just run from a shell:
 
 ```bash
 ./dependencies_hoover
 ```
+
+If the execution is correct, a report is written in a reports folder.
 
 ## Test
 

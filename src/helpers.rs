@@ -162,6 +162,9 @@ fn write_report(path: &Path, dependency: &str, report_name: &str) -> std::io::Re
     let report_path: &Path = Path::new(&filename);
     let line: String = path.display().to_string() + " | " + dependency;
 
+    // create the reports directory if doesn't exists
+    fs::create_dir_all("./reports")?;
+
     let mut file = OpenOptions::new()
         .create(true)
         .append(true)
