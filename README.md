@@ -87,10 +87,10 @@ target/debug/coverage
 
 At the time of writing, the application has about the 75% of code coverage.
 
-# Notes
+## Notes
 
 This application is developed and tested with the stable release of Rust:
 
-```
+```bash
 rustc 1.65.0 (897e37553 2022-11-02)
 ```
