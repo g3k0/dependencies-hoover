@@ -56,9 +56,9 @@ pub fn scan_directory(
                     !is_dependency_in_whitelist(&dep, &dependencies_whitelist) {
                     if !is_dependency_used(&dep, &path.with_file_name(""), ignore_dirs) {
 
-                        let mut report_name: &str = "[cleaning]deps_cleaning_report";
+                        let mut report_name: &str = "[cleaning]dh_report";
                         if *analysis_only {
-                            report_name = "[analysis_only]deps_cleaning_report";
+                            report_name = "[analysis_only]dh_report";
                         } else { 
                             delete_dependency(path, dep).unwrap();
                         }
@@ -252,7 +252,7 @@ fn test_is_dependency_in_whitelist() {
 fn test_write_report() {
     let path = Path::new("/app/src/main.js");
     let dependency = "lodash";
-    let report_name: &str = "test_report";
+    let report_name: &str = "[test]dh_report";
 
     // Write report
     write_report(path, dependency, report_name).expect("Failed to write report");
