@@ -159,6 +159,9 @@ fn write_report(path: &Path, dependency: &str) -> std::io::Result<()> {
 }
 
 // ----------------------------------------------------------------------------------------------------------------- //
+/**
+ *  UNIT TESTS
+ */
 
 #[cfg(test)]
 
@@ -195,4 +198,21 @@ fn test_file_exists_in_node_modules_bin() {
 
     // Test dependency with bin
     assert_eq!(file_exists_in_node_modules_bin(dependency_1, &path), true);
+}
+
+#[test]
+fn test_is_dir_in_ignore_list() {
+    let ignore_dirs = vec!["node_modules".to_string(), "build".to_string()];
+
+    // Test directory in ignore list
+    let path = Path::new("./mock/app/node_modules");
+    assert_eq!(is_dir_in_ignore_list(&path, &ignore_dirs), true);
+
+    // Test directory not in ignore list
+    let path = Path::new("./mock/app/src");
+    assert_eq!(is_dir_in_ignore_list(&path, &ignore_dirs), false);
+
+    // Test file instead of directory
+    let path = Path::new("./mock/app/src/main.js");
+    assert_eq!(is_dir_in_ignore_list(&path, &ignore_dirs), false);
 }
