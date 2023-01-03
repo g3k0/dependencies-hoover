@@ -47,7 +47,8 @@ pub fn scan_directory(path: &Path, ignore_dirs: &Vec<String>, dependencies_white
                     if !is_dependency_used(&dep, &path.with_file_name(""), ignore_dirs) {
 
                         delete_dependency(path, dep).unwrap();
-                        match write_report(path, dep) {
+                        let report_name: &str = "deps_cleaning_report";
+                        match write_report(path, dep, report_name) {
                             Ok(()) => (),
                             Err(e) => panic!("Error: {}", e),
                         }
@@ -141,9 +142,9 @@ fn delete_dependency(package_json_path: &Path, dependency: &str) -> io::Result<(
     Ok(())
 }
 
-fn write_report(path: &Path, dependency: &str) -> std::io::Result<()> {
+fn write_report(path: &Path, dependency: &str, report_name: &str) -> std::io::Result<()> {
     let today:DateTime<Local> = Local::now();
-    let filename = "./reports/dependencies_cleaning_report_".to_owned() + &today.format("%Y-%m-%d").to_string();
+    let filename = "./reports/".to_string() + report_name + "_" + &today.format("%Y-%m-%d").to_string();
     let report_path: &Path = Path::new(&filename);
     let line: String = path.display().to_string() + " | " + dependency;
 
@@ -237,13 +238,14 @@ fn test_is_dependency_in_whitelist() {
 fn test_write_report() {
     let path = Path::new("/app/src/main.js");
     let dependency = "lodash";
+    let report_name: &str = "test_report";
 
     // Write report
-    write_report(path, dependency).expect("Failed to write report");
+    write_report(path, dependency, report_name).expect("Failed to write report");
 
     // Check if report was written correctly
     let today:DateTime<Local> = Local::now();
-    let filename = "./reports/dependencies_cleaning_report_".to_owned() + &today.format("%Y-%m-%d").to_string();
+    let filename = "./reports/".to_string() + report_name + "_" +  &today.format("%Y-%m-%d").to_string();
     let report_path = Path::new(&filename);
     let report_contents = fs::read_to_string(report_path).expect("Failed to read report");
     assert!(report_contents.contains(&path.display().to_string()));
