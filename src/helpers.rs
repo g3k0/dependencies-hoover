@@ -252,3 +252,44 @@ fn test_write_report() {
     // Delete report
     fs::remove_file(report_path).expect("Failed to delete report");
 }
+
+#[test]
+fn test_delete_dependency() {
+    use serde_json::json;
+    let package_json_path: &Path = Path::new("./mock/app/package.json");
+    let dependency: &str = "\"jquery\"";
+    let version: &str = "\"^4.17.21\"";
+
+    fn add_dependency(package_json_path: &Path, dependency: &str, version: &str) -> io::Result<()> {
+        let mut file = fs::File::open(package_json_path)?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents)?;
+        let mut json: Value = serde_json::from_str(&contents)?;
+    
+        let new_dep = json!({dependency: version});
+        if let Some(deps) = json["dependencies"].as_object_mut() {
+            deps.extend(new_dep.as_object().unwrap().clone());
+        } else {
+            json["dependencies"] = new_dep;
+        }
+    
+        let new_contents = serde_json::to_string_pretty(&json)?;
+        let mut file = fs::File::create(package_json_path)?;
+        file.write_all(new_contents.as_bytes())?;
+    
+        Ok(())
+    }
+
+    // Add dependency to package.json
+    match add_dependency(package_json_path, dependency, version) {
+        Ok(()) => (),
+        Err(e) => panic!("Error: {}", e),
+    }
+
+    // Delete dependency from package.json
+    delete_dependency(package_json_path, dependency).expect("Failed to delete dependency");
+
+    // Check if dependency was deleted
+    let contents = fs::read_to_string(package_json_path).expect("Failed to read package.json");
+    assert!(!contents.contains(dependency));
+}
