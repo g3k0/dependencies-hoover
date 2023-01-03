@@ -16,6 +16,7 @@ The executable reads at runtime from a configuration file, so it is possible to 
 The configuration is contained in the **config.toml** file, it has 3 parameters:
 
 * project_to_scan_path: is the path (full of relative) of the Node.js project to scan;
+* analysis_only: is a boolean flag that permits to perform only the code analysis without the dependencies being removed;
 * ignore_dirs: is the list of directories that Dependencies Hoover will ignore;
 * dependencies_whitelist: is a list of dependencies that are ignored by Depencies Hoover, wrote as regex strings;
 

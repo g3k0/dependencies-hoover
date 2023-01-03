@@ -12,14 +12,24 @@ extern crate regex;
 
 use regex::Regex;
 
-pub fn scan_directory(path: &Path, ignore_dirs: &Vec<String>, dependencies_whitelist: &Vec<String>) {
+pub fn scan_directory(
+    path: &Path, 
+    analysis_only: &bool,
+    ignore_dirs: &Vec<String>, 
+    dependencies_whitelist: &Vec<String>
+) {
     if path.is_dir() && !is_dir_in_ignore_list(&path, &ignore_dirs) {
 
         let Ok(_dir_entries): Result<fs::ReadDir, std::io::Error> = fs::read_dir(path) else { return };
 
         for entry in fs::read_dir(path).unwrap() {
             let entry_path: std::path::PathBuf = entry.unwrap().path();
-            scan_directory(&entry_path, &ignore_dirs, &dependencies_whitelist);
+            scan_directory(
+                &entry_path, 
+                &analysis_only, 
+                &ignore_dirs, 
+                &dependencies_whitelist
+            );
         }
     } else if path.file_name().unwrap() == "package.json" {
         let file_contents: String = fs::read_to_string(path).unwrap();
@@ -46,8 +56,12 @@ pub fn scan_directory(path: &Path, ignore_dirs: &Vec<String>, dependencies_white
                     !is_dependency_in_whitelist(&dep, &dependencies_whitelist) {
                     if !is_dependency_used(&dep, &path.with_file_name(""), ignore_dirs) {
 
-                        delete_dependency(path, dep).unwrap();
-                        let report_name: &str = "deps_cleaning_report";
+                        let mut report_name: &str = "[cleaning]deps_cleaning_report";
+                        if *analysis_only {
+                            report_name = "[analysis_only]deps_cleaning_report";
+                        } else { 
+                            delete_dependency(path, dep).unwrap();
+                        }
                         match write_report(path, dep, report_name) {
                             Ok(()) => (),
                             Err(e) => panic!("Error: {}", e),

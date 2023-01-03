@@ -1,4 +1,5 @@
 project_to_scan_path = "/Users/palazzoc0905/Studio/oao-webplex/"
+analysis_only = true
 ignore_dirs = [
     ".githooks",
     ".github",

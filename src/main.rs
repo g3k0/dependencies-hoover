@@ -10,6 +10,7 @@ extern crate serde_derive;
 #[derive(Deserialize)]
 struct Settings {
     project_to_scan_path: String,
+    analysis_only: bool,
     ignore_dirs: Vec<String>,
     dependencies_whitelist: Vec<String>,
 }
@@ -24,6 +25,7 @@ fn main() {
 
     // get the config properties
     let project_path: &str = &settings.project_to_scan_path;
+    let analysis_only: &bool = &settings.analysis_only;
     let root_path: &Path = Path::new(project_path);
     let ignore_dirs: Vec<String> = settings.ignore_dirs;
     let dependencies_whitelist: Vec<String> = settings.dependencies_whitelist;
@@ -31,6 +33,7 @@ fn main() {
     // scan the project
     helpers::scan_directory(
         &root_path, 
+        &analysis_only,
         &ignore_dirs, 
         &dependencies_whitelist
     );
