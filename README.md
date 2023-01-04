@@ -9,8 +9,7 @@ package.json.<br/>
 A final report file is produced after the scan.<br/>
 The application can run in **cleaning mode** or **analysis_only mode**, in this case only the report is produced and the dependencies are not removed.
 
-Dependencies Hoover is entirely written in [Rust](https://www.rust-lang.org/) and it doesn't have external dependencies, it means that the executable file builded on a local machine runs independently of the operating system.<br />
-The executable reads at runtime from a configuration file, so it is possible to change the configuration with no need to compile the source code again.
+Dependencies Hoover is entirely written in [Rust](https://www.rust-lang.org/), it reads at runtime from a configuration file, so it is possible to change the configuration with no need to compile the source code again.
 
 ## Configuration
 
